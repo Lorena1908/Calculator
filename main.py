@@ -103,6 +103,20 @@ def draw_window():
 #         i += 1
 #     return result
 
+def add_complete_num(input_box):
+    length = 0
+    for i, item in enumerate(input_box):
+        if i > 0:
+            if item.isnumeric() and input_box[i-1].isnumeric():
+                length += 1
+
+    for num in range(length):
+        for i, item in enumerate(input_box):
+            if i > 0 and item.isnumeric() and input_box[i-1].isnumeric():
+                input_box[i-1] = input_box[i-1]+input_box[i]
+                input_box.pop(i)
+    return input_box 
+
 def main():
     run = True
     input_box = []
@@ -119,9 +133,11 @@ def main():
                 x, y = event.pos
                 for btn in buttons:
                     if btn.clicked(x, y) and btn == buttons[0]: # =
-                        print(input_box)
+                        pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
+                        print(add_complete_num(input_box))
                         print(show)
                         # get the result and display on the screen
+                        show = ''
                         input_box.clear()
                     elif btn.clicked(x, y) and btn == buttons[16]: # Backspace
                         show = show[:-1]
@@ -132,7 +148,7 @@ def main():
                         WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
                     elif btn.clicked(x, y):
                         show += btn.symbol
-                        input_box.append(btn)
+                        input_box.append(btn.symbol)
                         pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
                         text = font.render(show, 1, (255,255,255))
                         WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
