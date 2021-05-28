@@ -1,7 +1,7 @@
 import pygame
 import math
 
-WIDTH, HEIGHT = 525, 560
+WIDTH, HEIGHT = 436, 560
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Calculator')
 pygame.font.init()
@@ -81,14 +81,12 @@ def draw_window():
         Button(262.5, 308, multiply, '×', height=84),
         Button(262.5, 224, division, '÷', height=84),
         Button(262.5, 140, backspace, '', height=84),
-        Button(350, 140, sqrt, '√', color=(23, 78, 166)),
-        Button(350, 245, power, '^', color=(23, 78, 166)),
-        Button(350, 435, left_bracket, '(', color=(23, 78, 166)),
-        Button(437.5, 435, right_bracket, ')', color=(23, 78, 166)),
-        Button(350, 350, pi, '3.1415926535897', color=(23, 78, 166)),
-        Button(437.5, 140, percent, '%', color=(23, 78, 166)),
-        Button(437.5, 245, log, 'log(', color=(23, 78, 166)),
-        Button(437.5, 350, exclamation_mark, '!', color=(23, 78, 166))
+        Button(350, 140, sqrt, '√', color=(23, 78, 166), height=70),
+        Button(350, 210, power, '^', color=(23, 78, 166), height=70),
+        Button(350, 280, pi, '3.1415926535897', color=(23, 78, 166), height=70),
+        Button(350, 350, percent, '%', color=(23, 78, 166), height=70),
+        Button(350, 420, log, 'log(', color=(23, 78, 166), height=70),
+        Button(350, 490, exclamation_mark, '!', color=(23, 78, 166), height=70)
     ]
 
     WIN.fill((45, 48, 51))
