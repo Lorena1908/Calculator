@@ -5,8 +5,9 @@ WIDTH, HEIGHT = 525, 560
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Calculator')
 pygame.font.init()
+font = pygame.font.SysFont('comicsans', 50)
 
-operation_order = ['(', 'log(', '!', '^', '√', '×', '÷', '+', '-']
+operation_order = ['(', 'log(', '!', '^', '√', '%', '×', '÷', '+', '-', ')']
 
 class Button:
     def __init__(self, x, y, pic, symbol, width=87.5, height=105, color=(32, 33, 36)):
@@ -22,7 +23,7 @@ class Button:
         pygame.draw.rect(WIN, self.color, (self.x, self.y, self.width, self.height))
         WIN.blit(self.pic, (self.x+self.width/2 - self.pic.get_width()/2, self.y+self.height/2 - self.pic.get_height()/2))
     
-    def clicked(self, posx, posy):
+    def clicked(self, posx=0, posy=0):
         if self.x <= posx <= self.x + self.width and self.y <= posy <= self.y + self.height:
             return True
         else:
@@ -159,6 +160,8 @@ def calculate(input_box):
             order.append((i, 7))
         elif i == operation_order[8]:
             order.append((i, 8))
+        elif i == operation_order[9]:
+            order.append((i, 9))
     
     order = sorted(order, key=lambda x : x[1])
     order = new_order(order)
@@ -169,7 +172,12 @@ def calculate(input_box):
             pass
 
         elif key == operation_order[1]: # log(
-            pass
+            input_box[temp_dict[key]+1] = math.log10(float(input_box[temp_dict[key]+1]))
+            input_box.pop(temp_dict[key])
+            to_del.append(key)
+            if len(input_box) > 1:
+                if input_box[temp_dict[key]+1] == operation_order[-1]:
+                    input_box.pop(temp_dict[key]+1)
 
         elif key == operation_order[2]: # !
             input_box[temp_dict[key]-1] = factorial(float(input_box[temp_dict[key]-1]))
@@ -183,27 +191,40 @@ def calculate(input_box):
             to_del.append(key)
 
         elif key == operation_order[4]: # √
-            pass
+            input_box[temp_dict[key]+1] = math.sqrt(float(input_box[temp_dict[key]+1]))
+            input_box.pop(temp_dict[key])
+            to_del.append(key)
 
-        elif key == operation_order[5]: # ×
+        elif key == operation_order[5]: # %
+            if len(input_box[temp_dict[key]:]) > 1:
+                if isinstance(input_box[temp_dict[key]+1], float) or  input_box[temp_dict[key]+1].isnumeric():
+                    input_box[temp_dict[key]-1] = float(input_box[temp_dict[key]-1]) / 100 * float(input_box[temp_dict[key]+1])
+                    input_box.pop(temp_dict[key])
+                    input_box.pop(temp_dict[key])
+            else:
+                input_box[temp_dict[key]-1] = float(input_box[temp_dict[key]-1]) / 100
+                input_box.pop(temp_dict[key])
+            to_del.append(key)
+        
+        elif key == operation_order[6]: # ×
             input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) * float(input_box[temp_dict[key]+1])
             input_box.pop(temp_dict[key])
             input_box.pop(temp_dict[key]-1)
             to_del.append(key)
 
-        elif key == operation_order[6]: # ÷
+        elif key == operation_order[7]: # ÷
             input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) / float(input_box[temp_dict[key]+1])
             input_box.pop(temp_dict[key])
             input_box.pop(temp_dict[key]-1)
             to_del.append(key)
 
-        elif key == operation_order[7]: # +
+        elif key == operation_order[8]: # +
             input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) + float(input_box[temp_dict[key]+1])
             input_box.pop(temp_dict[key])
             input_box.pop(temp_dict[key]-1)
             to_del.append(key)
 
-        elif key == operation_order[8]: # -
+        elif key == operation_order[9]: # -
             input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) - float(input_box[temp_dict[key]+1])
             input_box.pop(temp_dict[key])
             input_box.pop(temp_dict[key]-1)
@@ -213,11 +234,15 @@ def calculate(input_box):
         del temp_dict[key]
     return input_box[0]
 
+def press_key(show):
+    pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
+    text = font.render(show, 1, (255,255,255))
+    WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
+
 def main():
     run = True
     input_box = []
     show = ''
-    font = pygame.font.SysFont('comicsans', 50)
     draw_window()
     while run:
         for event in pygame.event.get():
@@ -251,6 +276,82 @@ def main():
                         pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
                         text = font.render(show, 1, (255,255,255))
                         WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_0 or event.key == pygame.K_KP0:
+                    show += buttons[1].symbol
+                    input_box.append(buttons[1].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                    show += buttons[2].symbol
+                    input_box.append(buttons[2].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                    show += buttons[3].symbol
+                    input_box.append(buttons[3].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_3 or event.key == pygame.K_KP3:
+                    show += buttons[4].symbol
+                    input_box.append(buttons[4].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
+                    show += buttons[5].symbol
+                    input_box.append(buttons[5].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_5 or event.key == pygame.K_KP5:
+                    show += buttons[6].symbol
+                    input_box.append(buttons[6].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_6 or event.key == pygame.K_KP6:
+                    show += buttons[7].symbol
+                    input_box.append(buttons[7].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_7 or event.key == pygame.K_KP7:
+                    show += buttons[8].symbol
+                    input_box.append(buttons[8].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_8 or event.key == pygame.K_KP8:
+                    show += buttons[9].symbol
+                    input_box.append(buttons[9].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_9 or event.key == pygame.K_KP9:
+                    show += buttons[10].symbol
+                    input_box.append(buttons[10].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_BACKSPACE:
+                    show = show[:-1]
+                    if len(input_box) != 0:
+                        input_box.pop()
+                    press_key(show)
+                elif event.key == pygame.K_DELETE:
+                    show = ''
+                    input_box.clear()
+                    press_key(show)
+                elif event.key == pygame.K_KP_PLUS:
+                    show += buttons[12].symbol
+                    input_box.append(buttons[12].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_KP_MINUS or event.key == pygame.K_MINUS:
+                    show += buttons[13].symbol
+                    input_box.append(buttons[13].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_KP_MULTIPLY:
+                    show += buttons[14].symbol
+                    input_box.append(buttons[14].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_KP_DIVIDE or event.key == pygame.K_SLASH:
+                    show += buttons[15].symbol
+                    input_box.append(buttons[15].symbol)
+                    press_key(show)
+                elif event.key == pygame.K_KP_ENTER or event.key == pygame.K_RETURN:
+                    pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
+                    answer = calculate(add_complete_num(input_box))
+                    text = font.render(str(answer), 1, (255,255,255))
+                    WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
+                    show = str(answer)
+                    input_box.clear()
+                    input_box.append(answer)
+
         pygame.display.update()
 
 main()
