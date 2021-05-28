@@ -6,6 +6,8 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Calculator')
 pygame.font.init()
 
+operation_order = ['(', 'log(', '!', '^', '√', '×', '÷', '+', '-']
+
 class Button:
     def __init__(self, x, y, pic, symbol, width=87.5, height=105, color=(32, 33, 36)):
         self.x = x
@@ -95,13 +97,13 @@ def draw_window():
         btn.draw()
     pygame.draw.line(WIN, (48, 48, 50), (262.5, 140), (262.5, HEIGHT))
 
-# def factorial(num):
-#     i = 1
-#     result = 1
-#     while i <= num:
-#         result *= i
-#         i += 1
-#     return result
+def factorial(num):
+    i = 1
+    result = 1
+    while i <= num:
+        result *= i
+        i += 1
+    return result
 
 def add_complete_num(input_box):
     length = 0
@@ -116,6 +118,100 @@ def add_complete_num(input_box):
                 input_box[i-1] = input_box[i-1]+input_box[i]
                 input_box.pop(i)
     return input_box 
+
+def add_to_dict(dict, input_box):
+    for i, item in enumerate(input_box):
+        if isinstance(item, float):
+            continue
+        elif not item.isnumeric():
+            dict[item] = i
+    return len(dict)
+
+def new_order(order):
+    order2 = []
+    for key in order:
+        order2.append(key[0])
+    return order2
+
+def calculate(input_box):
+    temp_dict = {}
+    to_del = []
+    dict_len = add_to_dict(temp_dict, input_box)
+    keys = temp_dict.keys()
+    order = []
+
+    for i in keys:
+        if i == operation_order[0]:
+            order.append((i, 0))
+        elif i == operation_order[1]:
+            order.append((i, 1))
+        elif i == operation_order[2]:
+            order.append((i, 2))
+        elif i == operation_order[3]:
+            order.append((i, 3))
+        elif i == operation_order[4]:
+            order.append((i, 4))
+        elif i == operation_order[5]:
+            order.append((i, 5))
+        elif i == operation_order[6]:
+            order.append((i, 6))
+        elif i == operation_order[7]:
+            order.append((i, 7))
+        elif i == operation_order[8]:
+            order.append((i, 8))
+    
+    order = sorted(order, key=lambda x : x[1])
+    order = new_order(order)
+
+    for key in order:
+        add_to_dict(temp_dict, input_box)
+        if key == operation_order[0]: # (
+            pass
+
+        elif key == operation_order[1]: # log(
+            pass
+
+        elif key == operation_order[2]: # !
+            input_box[temp_dict[key]-1] = factorial(float(input_box[temp_dict[key]-1]))
+            input_box.pop(temp_dict[key])
+            to_del.append(key)
+
+        elif key == operation_order[3]: # ^
+            input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) ** float(input_box[temp_dict[key]+1])
+            input_box.pop(temp_dict[key])
+            input_box.pop(temp_dict[key]-1)
+            to_del.append(key)
+
+        elif key == operation_order[4]: # √
+            pass
+
+        elif key == operation_order[5]: # ×
+            input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) * float(input_box[temp_dict[key]+1])
+            input_box.pop(temp_dict[key])
+            input_box.pop(temp_dict[key]-1)
+            to_del.append(key)
+
+        elif key == operation_order[6]: # ÷
+            input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) / float(input_box[temp_dict[key]+1])
+            input_box.pop(temp_dict[key])
+            input_box.pop(temp_dict[key]-1)
+            to_del.append(key)
+
+        elif key == operation_order[7]: # +
+            input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) + float(input_box[temp_dict[key]+1])
+            input_box.pop(temp_dict[key])
+            input_box.pop(temp_dict[key]-1)
+            to_del.append(key)
+
+        elif key == operation_order[8]: # -
+            input_box[temp_dict[key]+1] = float(input_box[temp_dict[key]-1]) - float(input_box[temp_dict[key]+1])
+            input_box.pop(temp_dict[key])
+            input_box.pop(temp_dict[key]-1)
+            to_del.append(key)
+    
+    for key in to_del:
+        del temp_dict[key]
+    return input_box[0]
 
 def main():
     run = True
@@ -134,11 +230,13 @@ def main():
                 for btn in buttons:
                     if btn.clicked(x, y) and btn == buttons[0]: # =
                         pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
-                        print(add_complete_num(input_box))
-                        print(show)
-                        # get the result and display on the screen
-                        show = ''
+                        answer = calculate(add_complete_num(input_box))
+                        text = font.render(str(answer), 1, (255,255,255))
+                        WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
+                        show = str(answer)
                         input_box.clear()
+                        input_box.append(answer)
+
                     elif btn.clicked(x, y) and btn == buttons[16]: # Backspace
                         show = show[:-1]
                         if len(input_box) != 0:
@@ -146,6 +244,7 @@ def main():
                         pygame.draw.rect(WIN, (45, 48, 51), (0,0, WIDTH, HEIGHT-420))
                         text = font.render(show, 1, (255,255,255))
                         WIN.blit(text, (WIDTH-30 - text.get_width(), 140-20 - text.get_height()))
+
                     elif btn.clicked(x, y):
                         show += btn.symbol
                         input_box.append(btn.symbol)
