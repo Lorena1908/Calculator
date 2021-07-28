@@ -248,7 +248,7 @@ def main():
                 pygame.quit()
                 run = False
             
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
                 x, y = event.pos
                 for btn in buttons:
                     if btn.clicked(x, y) and btn == buttons[0]: # =
